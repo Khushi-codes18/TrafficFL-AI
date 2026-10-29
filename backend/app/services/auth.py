@@ -175,10 +175,10 @@ def require_roles(allowed_roles: List[str]):
 
 def seed_demo_user(db: Session) -> Optional[User]:
     """
-    Ensures standard demo accounts exist in database only during development mode.
-    Disables seeding if in production or ALLOW_DEMO_LOGIN is false.
+    Ensures standard demo accounts exist in database.
+    Disables seeding if ALLOW_DEMO_LOGIN is false.
     """
-    if ENVIRONMENT == "production" or not ALLOW_DEMO_LOGIN:
+    if not ALLOW_DEMO_LOGIN:
         return None
 
     # 1. Authority Demo Account

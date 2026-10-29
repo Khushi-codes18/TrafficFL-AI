@@ -38,6 +38,7 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [demoLoadingRole, setDemoLoadingRole] = useState<"authority" | "citizen" | null>(null);
 
   // Preserve intended destination after login, respecting role boundaries
   const from = (location.state as any)?.from?.pathname || "/";
@@ -91,16 +92,19 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoSignIn = async (role: "authority" | "citizen" = "authority") => {
+    if (submitting) return;
     setErrorMsg(null);
     setSubmitting(true);
+    setDemoLoadingRole(role);
     try {
       await demoLogin(role);
-      const targetRole = role === "authority" ? "admin" : "citizen";
-      navigate(getAuthorizedRedirect(targetRole), { replace: true });
+      const targetPath = role === "authority" ? "/dashboard" : "/citizen";
+      navigate(targetPath, { replace: true });
     } catch (err: any) {
-      setErrorMsg(err.message || "Demo login failed");
+      setErrorMsg(err.message || (isHindi ? "डेमो लॉगिन विफल हुआ। कृपया पुनः प्रयास करें।" : "Demo login failed. Please try again."));
     } finally {
       setSubmitting(false);
+      setDemoLoadingRole(null);
     }
   };
 
@@ -274,26 +278,38 @@ export const LoginPage: React.FC = () => {
           <div className="p-3 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/60 text-xs space-y-2">
             <div className="flex items-center justify-between text-blue-900 dark:text-blue-300 font-semibold">
               <span className="flex items-center gap-1.5">
-                <KeyRound className="w-3.5 h-3.5 text-blue-500" />
-                <span>{isHindi ? "त्वरित क्रेडेंशियल्स (क्लिक करके भरें):" : "Demo Credentials (Click to fill):"}</span>
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                <span>{isHindi ? "त्वरित मोड एक्सेस (डेमो लॉगिन):" : "Automatic Demo Login (Mode Select):"}</span>
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <button
                 type="button"
-                onClick={() => fillCredentials("authority")}
-                className="p-2 rounded-lg bg-white dark:bg-slate-800/90 border border-blue-200 dark:border-slate-700 hover:border-blue-500 text-left transition-all cursor-pointer"
+                onClick={() => handleDemoSignIn("authority")}
+                disabled={submitting}
+                className="p-2 rounded-lg bg-white dark:bg-slate-800/90 border border-blue-200 dark:border-slate-700 hover:border-blue-500 text-left transition-all cursor-pointer disabled:opacity-60 flex items-center justify-between gap-1"
               >
-                <div className="font-bold text-blue-600 dark:text-blue-400">Traffic Authority</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">admin@trafficfl.gov.in</div>
+                <div>
+                  <div className="font-bold text-blue-600 dark:text-blue-400">{isHindi ? "अथॉरिटी मोड" : "Authority Mode"}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">admin@trafficfl.gov.in</div>
+                </div>
+                {submitting && demoLoadingRole === "authority" && (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 dark:text-blue-400 shrink-0" />
+                )}
               </button>
               <button
                 type="button"
-                onClick={() => fillCredentials("citizen")}
-                className="p-2 rounded-lg bg-white dark:bg-slate-800/90 border border-emerald-200 dark:border-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer"
+                onClick={() => handleDemoSignIn("citizen")}
+                disabled={submitting}
+                className="p-2 rounded-lg bg-white dark:bg-slate-800/90 border border-emerald-200 dark:border-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer disabled:opacity-60 flex items-center justify-between gap-1"
               >
-                <div className="font-bold text-emerald-600 dark:text-emerald-400">Citizen Commuter</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">citizen@trafficflow.ai</div>
+                <div>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400">{isHindi ? "पब्लिक मोड" : "General Public Mode"}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">citizen@trafficflow.ai</div>
+                </div>
+                {submitting && demoLoadingRole === "citizen" && (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600 dark:text-emerald-400 shrink-0" />
+                )}
               </button>
             </div>
           </div>
@@ -407,20 +423,28 @@ export const LoginPage: React.FC = () => {
                 type="button"
                 onClick={() => handleDemoSignIn("authority")}
                 disabled={submitting}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-blue-200 dark:border-slate-700 text-blue-900 dark:text-slate-200 text-xs font-semibold transition-all hover:border-blue-400 cursor-pointer shadow-sm"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-blue-200 dark:border-slate-700 text-blue-900 dark:text-slate-200 text-xs font-semibold transition-all hover:border-blue-400 cursor-pointer shadow-sm disabled:opacity-60"
               >
-                <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                <span className="truncate">{isHindi ? "ट्रैफिक अथॉरिटी" : "Traffic Authority"}</span>
+                {submitting && demoLoadingRole === "authority" ? (
+                  <Loader2 className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
+                ) : (
+                  <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                )}
+                <span className="truncate">{isHindi ? "अथॉरिटी मोड" : "Authority Mode"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleDemoSignIn("citizen")}
                 disabled={submitting}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-emerald-200 dark:border-slate-700 text-emerald-900 dark:text-slate-200 text-xs font-semibold transition-all hover:border-emerald-400 cursor-pointer shadow-sm"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-emerald-200 dark:border-slate-700 text-emerald-900 dark:text-slate-200 text-xs font-semibold transition-all hover:border-emerald-400 cursor-pointer shadow-sm disabled:opacity-60"
               >
-                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span className="truncate">{isHindi ? "नागरिक (Citizen)" : "Citizen Commuter"}</span>
+                {submitting && demoLoadingRole === "citizen" ? (
+                  <Loader2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-spin shrink-0" />
+                ) : (
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                )}
+                <span className="truncate">{isHindi ? "पब्लिक मोड" : "General Public Mode"}</span>
               </button>
             </div>
           </div>

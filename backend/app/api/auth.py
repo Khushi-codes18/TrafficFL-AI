@@ -146,12 +146,12 @@ def login_user(req: UserLoginRequest, db: Session = Depends(get_db)):
 def demo_login(role: str = "authority", db: Session = Depends(get_db)):
     """
     One-click demo authentication passing through real backend security flow.
-    Hardened for production: strictly disabled when ENVIRONMENT == 'production' or ALLOW_DEMO_LOGIN is false.
+    Accessible for evaluation demos when ALLOW_DEMO_LOGIN is enabled.
     """
-    if ENVIRONMENT == "production" or not ALLOW_DEMO_LOGIN:
+    if not ALLOW_DEMO_LOGIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Demo authentication is disabled in production environments.",
+            detail="Demo authentication is disabled.",
         )
 
     seed_demo_user(db)
