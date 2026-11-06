@@ -30,6 +30,7 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
+import { DetectMyLocationCard } from "../components/location/DetectMyLocationCard";
 
 // Predefined arterial links for Leaflet display
 const ARTERIAL_EDGES = [
@@ -272,6 +273,13 @@ export const CitizenDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 🧭 Detect My Location Feature */}
+      <DetectMyLocationCard
+        intersections={intersections}
+        selectedId={selectedId}
+        onSelectIntersection={(id) => setSelectedId(id)}
+      />
 
       {/* Location Selector Bar */}
       <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
