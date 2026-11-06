@@ -279,6 +279,7 @@ export const CitizenDashboard: React.FC = () => {
         intersections={intersections}
         selectedId={selectedId}
         onSelectIntersection={(id) => setSelectedId(id)}
+        lastUpdated={lastRefreshedAt}
       />
 
       {/* Location Selector Bar */}
@@ -481,20 +482,25 @@ export const CitizenDashboard: React.FC = () => {
             ))}
           </MapContainer>
 
-          {/* Simple Legend Overlay */}
-          <div className="absolute bottom-3 left-3 z-[400] p-2.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow text-[11px] space-y-1">
-            <span className="font-bold text-slate-700 dark:text-slate-300 block mb-0.5">Traffic Legend</span>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span>Free Flow (&gt; 35 km/h)</span>
+          {/* Enhanced Map Legend & Sync Overlay */}
+          <div className="absolute bottom-3 left-3 z-[400] p-3 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-lg text-[11px] space-y-1.5">
+            <div className="flex items-center justify-between gap-3 pb-1 border-b border-slate-100 dark:border-slate-800">
+              <span className="font-bold text-slate-900 dark:text-white block">Traffic Condition</span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                {lastRefreshedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span>Moderate (22 - 35 km/h)</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+              <span className="font-semibold text-emerald-700 dark:text-emerald-300">Green – Low traffic (&gt; 35 km/h)</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-              <span>Heavy (&lt; 22 km/h)</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+              <span className="font-semibold text-amber-700 dark:text-amber-300">Yellow – Moderate traffic (22 - 35 km/h)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0" />
+              <span className="font-semibold text-red-700 dark:text-red-300">Red – Heavy traffic (&lt; 22 km/h)</span>
             </div>
           </div>
         </div>
